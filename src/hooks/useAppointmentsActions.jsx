@@ -6,9 +6,11 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-import { db } from "../data/fireaseConfig"; 
 
-export  const useAppointmentActions = setAppointments => {
+import firebaseConfig from "./firebaseConfig";
+
+export const useAppointmentActions = setAppointments => {
+  const { db } = firebaseConfig();
   const appointmentsReference = collection(db, "appointments");
 
   const POSTAppointment = async newAppointment => {

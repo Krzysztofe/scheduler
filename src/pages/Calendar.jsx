@@ -20,11 +20,10 @@ import {
 import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
-import { collection, getDocs } from "firebase/firestore";
 import { useCallback, useEffect, useReducer, useState } from "react";
-import { firestore } from "../data/fireaseConfig";
 
 import { useAppointmentActions } from "../hooks/useAppointmentsActions";
+import { useFetchAppointments } from "../services/fetchAppointments";
 
 const PREFIX = "Demo";
 
@@ -55,8 +54,6 @@ const ToolbarWithLoading = ({ children, ...restProps }) => (
   </StyledDiv>
 );
 
-
-
 const polishTime = date =>
   new Date(date).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw" });
 
@@ -76,8 +73,6 @@ const initialState = {
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "setLoading":
-      return { ...state, loading: action.payload };
     case "setData":
       return { ...state, data: action.payload.map(mapAppointmentData) };
     case "setCurrentViewName":
@@ -91,21 +86,14 @@ const reducer = (state, action) => {
 
 export default function Calendar() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { loading, currentViewName, currentDate } = state;
+  const { currentViewName, currentDate } = state;
   const [appointments, setAppointments] = useState([]);
-  const appointmentsReference = collection(firestore, "appointments");
   const { commitChanges } = useAppointmentActions(setAppointments);
+  const { fetchAppointments, loading, error } =
+    useFetchAppointments(setAppointments);
 
   useEffect(() => {
-    const getEvents = async () => {
-      setLoading(true);
-      const data = await getDocs(appointmentsReference);
-      setTimeout(() => {
-        setAppointments(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-        setLoading(false);
-      }, 600);
-    };
-    getEvents();
+    fetchAppointments(setAppointments);
   }, [setAppointments, currentViewName, currentDate]);
 
   const setCurrentViewName = useCallback(
@@ -126,15 +114,7 @@ export default function Calendar() {
     [dispatch]
   );
 
-  const setLoading = useCallback(
-    nextLoading =>
-      dispatch({
-        type: "setLoading",
-        payload: nextLoading,
-      }),
-    [dispatch]
-  );
-
+  console.log("", error);
   return (
     <Paper>
       <Scheduler data={appointments} height={660} locale="pl-PL">
