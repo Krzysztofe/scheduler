@@ -99,7 +99,6 @@ export default function Calendar() {
   const { loading, currentViewName, currentDate } = state;
   const [appointments, setAppointments] = useState([]);
   const appointmentsReference = collection(firestore, "appointments");
-
   const { commitChanges } = useAppointmentActions(setAppointments);
 
   useEffect(() => {
