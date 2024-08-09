@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect, useState, useReducer, useCallback } from "react";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -22,6 +22,8 @@ import {
   ConfirmationDialog,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { appointments } from "../demoData";
+import { db, firestore } from "../data/fireaseConfig";
+import { collection, getDocs } from "firebase/firestore";
 
 const PREFIX = "Demo";
 
@@ -107,11 +109,25 @@ const reducer = (state, action) => {
 };
 
 export default function Calendar() {
-  const [state, dispatch] = React.useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const { loading, currentViewName, currentDate } = state;
-  const [data, setData] = React.useState(appointments);
+  const [data, setData] = useState(appointments);
 
-  const setCurrentViewName = React.useCallback(
+  const [events, setEvents] = useState([]);
+  const summaryReference = collection(firestore, "appointments");
+
+  useEffect(() => {
+    const getEvents = async () => {
+      const data = await getDocs(summaryReference);
+      setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+      
+    };
+    getEvents();
+  }, []);
+
+  console.log("", events);
+
+  const setCurrentViewName = useCallback(
     nextViewName =>
       dispatch({
         type: "setCurrentViewName",
@@ -120,7 +136,7 @@ export default function Calendar() {
     [dispatch]
   );
 
-  const setCurrentDate = React.useCallback(
+  const setCurrentDate = useCallback(
     nextDate =>
       dispatch({
         type: "setCurrentDate",
@@ -129,7 +145,7 @@ export default function Calendar() {
     [dispatch]
   );
 
-  const setLoading = React.useCallback(
+  const setLoading = useCallback(
     nextLoading =>
       dispatch({
         type: "setLoading",
@@ -138,11 +154,11 @@ export default function Calendar() {
     [dispatch]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     getData(setData, setLoading);
   }, [setData, currentViewName, currentDate]);
 
-  const commitChanges = React.useCallback(
+  const commitChanges = useCallback(
     ({ added, changed, deleted }) => {
       setData(prevData => {
         let updatedData = [...prevData];
@@ -175,7 +191,7 @@ export default function Calendar() {
     [setData]
   );
 
-console.log('',data)
+  // console.log("", data);
 
   return (
     <Paper>
