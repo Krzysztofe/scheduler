@@ -338,7 +338,6 @@ import {
   ConfirmationDialog,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { appointments } from "./demoData";
-// import { styled } from "@mui/material/styles";
 
 const PREFIX = "Demo";
 
@@ -506,14 +505,26 @@ export default function Calendar() {
         <DayView startDayHour={7.5} endDayHour={17.5} />
         <WeekView startDayHour={7.5} endDayHour={17.5} />
         <MonthView />
-        <ConfirmationDialog />
+        <ConfirmationDialog
+          messages={{
+            confirmDeleteMessage: "Czy na pewno chcesz usunąć to wydarzenie?",
+            cancelButton: "Anuluj",
+            deleteButton: "Usuń",
+          }}
+        />
         <Appointments />
         <Toolbar
           {...(loading ? { rootComponent: ToolbarWithLoading } : null)}
         />
         <DateNavigator />
         <TodayButton messages={{ today: "Dzisiaj" }} />
-        <ViewSwitcher />
+        <ViewSwitcher
+          messages={{
+            day: "Dzień",
+            week: "Tydzień",
+            month: "Miesiąc",
+          }}
+        />
         <AppointmentTooltip
           showOpenButton
           showCloseButton
@@ -533,7 +544,7 @@ export default function Calendar() {
             titleLabel: "Tytuł",
             startDateLabel: "Data rozpoczęcia",
             endDateLabel: "Data zakończenia",
-            moreInformationLabel: "Więcej informacji",
+            commitCommand: "Zapisz",
           }}
         />
       </Scheduler>
