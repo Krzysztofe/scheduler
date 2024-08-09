@@ -62,6 +62,7 @@ const getData = (setData, setLoading) => {
   return fetch(dataUrl)
     .then(response => response.json())
     .then(data => {
+      
       setTimeout(() => {
         setData(data.items);
         setLoading(false);
@@ -119,11 +120,13 @@ export default function Calendar() {
   useEffect(() => {
     const getEvents = async () => {
       const data = await getDocs(summaryReference);
-      setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-      
+      setTimeout(() => {
+        setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+        setLoading(false);
+      }, 600);
     };
     getEvents();
-  }, []);
+  }, [setEvents, currentViewName, currentDate]);
 
   console.log("", events);
 
@@ -154,13 +157,24 @@ export default function Calendar() {
     [dispatch]
   );
 
-  useEffect(() => {
-    getData(setData, setLoading);
-  }, [setData, currentViewName, currentDate]);
+  // useEffect(() => {
+  //   getData(setEvents, setLoading);
+  // }, [setEvents, currentViewName, currentDate]);
+
+    useEffect(() => {
+      const getEvents = async () => {
+        const data = await getDocs(summaryReference);
+        setTimeout(() => {
+          setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+          setLoading(false);
+        }, 600);
+      };
+      getEvents();
+    }, [setEvents, currentViewName, currentDate]);
 
   const commitChanges = useCallback(
     ({ added, changed, deleted }) => {
-      setData(prevData => {
+      setEvents(prevData => {
         let updatedData = [...prevData];
 
         if (added) {
@@ -188,14 +202,14 @@ export default function Calendar() {
         return updatedData;
       });
     },
-    [setData]
+    [setEvents]
   );
 
   // console.log("", data);
 
   return (
     <Paper>
-      <Scheduler data={data} height={660} locale="pl-PL">
+      <Scheduler data={events} height={660} locale="pl-PL">
         <ViewState
           currentDate={currentDate}
           currentViewName={currentViewName}
