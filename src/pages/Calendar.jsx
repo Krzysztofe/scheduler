@@ -28,6 +28,7 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  deleteDoc,
   doc,
 } from "firebase/firestore";
 
@@ -187,7 +188,8 @@ export default function Calendar() {
   };
 
   const DELETEApponintemt = async id => {
-    await addDoc(appointmentsReference, newAppointment);
+    const eventsDoc = doc(db, "appointments", id);
+    await deleteDoc(eventsDoc);
   };
 
   const commitChanges = useCallback(
@@ -227,7 +229,7 @@ export default function Calendar() {
                 ...appointment,
                 ...changed[changeId],
               };
-              console.log("Edited Appointment ID:", changeId);
+
               PUTApponintemt(changeId, updatedAppointment);
               return updatedAppointment;
             }
@@ -236,9 +238,16 @@ export default function Calendar() {
         }
 
         if (deleted !== undefined) {
+          const deletedAppointment = updatedData.find(
+            appointment => appointment.id === deleted
+          );
           updatedData = updatedData.filter(
             appointment => appointment.id !== deleted
           );
+
+          if (deletedAppointment) {
+            DELETEApponintemt(deletedAppointment.id);
+          }
         }
 
         return updatedData;
@@ -246,8 +255,6 @@ export default function Calendar() {
     },
     [setEvents]
   );
-
-  // console.log("", data);
 
   return (
     <Paper>
