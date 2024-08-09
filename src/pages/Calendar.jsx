@@ -1,35 +1,28 @@
-import { useEffect, useState, useReducer, useCallback } from "react";
-import { styled } from "@mui/material/styles";
-import Paper from "@mui/material/Paper";
-import LinearProgress from "@mui/material/LinearProgress";
 import {
-  ViewState,
   EditingState,
   IntegratedEditing,
+  ViewState,
 } from "@devexpress/dx-react-scheduler";
 import {
-  Scheduler,
-  WeekView,
-  DayView,
-  Appointments,
-  MonthView,
-  Toolbar,
-  DateNavigator,
-  ViewSwitcher,
   AppointmentForm,
+  Appointments,
   AppointmentTooltip,
-  TodayButton,
   ConfirmationDialog,
+  DateNavigator,
+  DayView,
+  MonthView,
+  Scheduler,
+  TodayButton,
+  Toolbar,
+  ViewSwitcher,
+  WeekView,
 } from "@devexpress/dx-react-scheduler-material-ui";
-import { db, firestore } from "../data/fireaseConfig";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import LinearProgress from "@mui/material/LinearProgress";
+import Paper from "@mui/material/Paper";
+import { styled } from "@mui/material/styles";
+import { collection, getDocs } from "firebase/firestore";
+import { useCallback, useEffect, useReducer, useState } from "react";
+import { firestore } from "../data/fireaseConfig";
 
 import { useAppointmentActions } from "../hooks/useAppointmentsActions";
 
@@ -62,20 +55,22 @@ const ToolbarWithLoading = ({ children, ...restProps }) => (
   </StyledDiv>
 );
 
-const usaTime = date =>
-  new Date(date).toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
+
+
+const polishTime = date =>
+  new Date(date).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw" });
 
 const mapAppointmentData = appointment => ({
   id: appointment.id,
-  startDate: usaTime(appointment.start.dateTime),
-  endDate: usaTime(appointment.end.dateTime),
+  startDate: polishTime(appointment.start.dateTime),
+  endDate: polishTime(appointment.end.dateTime),
   title: appointment.summary,
 });
 
 const initialState = {
   data: [],
   loading: false,
-  currentDate: "2017-05-23",
+  currentDate: "2024-08-01",
   currentViewName: "month",
 };
 
@@ -170,17 +165,7 @@ export default function Calendar() {
         <DateNavigator />
         <TodayButton messages={{ today: "Dzisiaj" }} />
         <ViewSwitcher />
-        <AppointmentTooltip
-          showOpenButton
-          showCloseButton
-          messages={{
-            detailsLabel: "Szczegóły",
-            closeLabel: "Zamknij",
-            deleteButtonLabel: "Usuń",
-            openButtonLabel: "Otwórz",
-            saveButtonLabel: "Zapisz",
-          }}
-        />
+        <AppointmentTooltip showOpenButton showCloseButton />
 
         <AppointmentForm
           booleanEditorComponent={() => null}

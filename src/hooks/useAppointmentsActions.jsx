@@ -50,7 +50,7 @@ export  const useAppointmentActions = setAppointments => {
           POSTAppointment({
             id: startingAddedId,
             ...newAppointment,
-            location: "Room 1",
+            // location: "Room 1",
           });
         }
 
