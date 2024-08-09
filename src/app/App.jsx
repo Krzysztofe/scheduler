@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import "./App.css";
 import LoadingPage from "../pages/loadingPage/LoadingPage";
+import Calendar from "../pages/Calendar";
 
 const IndexCalendar = lazy(() => import("../pages/Calendar"));
 

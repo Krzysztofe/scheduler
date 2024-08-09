@@ -21,7 +21,6 @@ import {
   TodayButton,
   ConfirmationDialog,
 } from "@devexpress/dx-react-scheduler-material-ui";
-import { appointments } from "../demoData";
 import { db, firestore } from "../data/fireaseConfig";
 import {
   collection,
@@ -31,6 +30,8 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
+
+import { useAppointmentActions } from "../hooks/useAppointmentsActions";
 
 const PREFIX = "Demo";
 
@@ -53,28 +54,6 @@ const StyledLinearProgress = styled(LinearProgress)(() => ({
     left: 0,
   },
 }));
-
-const PUBLIC_KEY = "AIzaSyBnNAISIUKe6xdhq1_rjor2rxoI3UlMY7k";
-const CALENDAR_ID = "f7jnetm22dsjc3npc2lu3buvu4@group.calendar.google.com";
-
-const getData = (setData, setLoading) => {
-  const dataUrl = [
-    "https://www.googleapis.com/calendar/v3/calendars/",
-    CALENDAR_ID,
-    "/events?key=",
-    PUBLIC_KEY,
-  ].join("");
-  setLoading(true);
-
-  return fetch(dataUrl)
-    .then(response => response.json())
-    .then(data => {
-      setTimeout(() => {
-        setData(data.items);
-        setLoading(false);
-      }, 600);
-    });
-};
 
 const ToolbarWithLoading = ({ children, ...restProps }) => (
   <StyledDiv className={classes.toolbarRoot}>
@@ -118,23 +97,22 @@ const reducer = (state, action) => {
 export default function Calendar() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { loading, currentViewName, currentDate } = state;
-  const [data, setData] = useState(appointments);
-
-  const [events, setEvents] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const appointmentsReference = collection(firestore, "appointments");
+
+  const { commitChanges } = useAppointmentActions(setAppointments);
 
   useEffect(() => {
     const getEvents = async () => {
+      setLoading(true);
       const data = await getDocs(appointmentsReference);
       setTimeout(() => {
-        setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+        setAppointments(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
         setLoading(false);
       }, 600);
     };
     getEvents();
-  }, [setEvents, currentViewName, currentDate]);
-
-  console.log("", events);
+  }, [setAppointments, currentViewName, currentDate]);
 
   const setCurrentViewName = useCallback(
     nextViewName =>
@@ -163,102 +141,9 @@ export default function Calendar() {
     [dispatch]
   );
 
-  // useEffect(() => {
-  //   getData(setEvents, setLoading);
-  // }, [setEvents, currentViewName, currentDate]);
-
-  useEffect(() => {
-    const getEvents = async () => {
-      const data = await getDocs(appointmentsReference);
-      setTimeout(() => {
-        setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-        setLoading(false);
-      }, 600);
-    };
-    getEvents();
-  }, [setEvents, currentViewName, currentDate]);
-
-  const POSTApponintemt = async newAppointment => {
-    await addDoc(appointmentsReference, newAppointment);
-  };
-
-  const PUTApponintemt = async (id, newDetails) => {
-    const eventsDoc = doc(db, "appointments", id);
-    await updateDoc(eventsDoc, newDetails);
-  };
-
-  const DELETEApponintemt = async id => {
-    const eventsDoc = doc(db, "appointments", id);
-    await deleteDoc(eventsDoc);
-  };
-
-  const commitChanges = useCallback(
-    ({ added, changed, deleted }) => {
-      setEvents(prevData => {
-        let updatedData = [...prevData];
-
-        if (added) {
-          const startingAddedId =
-            updatedData.length > 0
-              ? updatedData[updatedData.length - 1].id + 1
-              : 0;
-
-          const newAppointment = {
-            ...added,
-            startDate: added.startDate.toString(),
-            endDate: added.endDate.toString(),
-          };
-
-          updatedData = [
-            ...updatedData,
-            { id: startingAddedId, ...newAppointment },
-          ];
-
-          POSTApponintemt({
-            id: startingAddedId,
-            ...newAppointment,
-            location: "Room 1",
-          });
-        }
-
-        if (changed) {
-          updatedData = updatedData.map(appointment => {
-            const changeId = appointment.id;
-            if (changed[changeId]) {
-              const updatedAppointment = {
-                ...appointment,
-                ...changed[changeId],
-              };
-
-              PUTApponintemt(changeId, updatedAppointment);
-              return updatedAppointment;
-            }
-            return appointment;
-          });
-        }
-
-        if (deleted !== undefined) {
-          const deletedAppointment = updatedData.find(
-            appointment => appointment.id === deleted
-          );
-          updatedData = updatedData.filter(
-            appointment => appointment.id !== deleted
-          );
-
-          if (deletedAppointment) {
-            DELETEApponintemt(deletedAppointment.id);
-          }
-        }
-
-        return updatedData;
-      });
-    },
-    [setEvents]
-  );
-
   return (
     <Paper>
-      <Scheduler data={events} height={660} locale="pl-PL">
+      <Scheduler data={appointments} height={660} locale="pl-PL">
         <ViewState
           currentDate={currentDate}
           currentViewName={currentViewName}
