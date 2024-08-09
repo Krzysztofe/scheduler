@@ -13,7 +13,7 @@ import {
   AppointmentTooltip,
   ConfirmationDialog,
 } from "@devexpress/dx-react-scheduler-material-ui";
-import { appointments } from "./demoData";
+import { appointments } from "../demoData";
 
 
 const initialState = {
