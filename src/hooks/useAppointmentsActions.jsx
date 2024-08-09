@@ -7,7 +7,7 @@ import {
   doc,
 } from "firebase/firestore";
 
-import firebaseConfig from "./firebaseConfig";
+import firebaseConfig from "../utils/firebaseConfig";
 
 export const useAppointmentActions = setAppointments => {
   const { db } = firebaseConfig();

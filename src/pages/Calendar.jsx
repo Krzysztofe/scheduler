@@ -24,6 +24,7 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { useAppointmentActions } from "../hooks/useAppointmentsActions";
 import { useFetchAppointments } from "../services/fetchAppointments";
+import ErrorPage from "../components/ErrorPage";
 
 const PREFIX = "Demo";
 
@@ -114,7 +115,10 @@ export default function Calendar() {
     [dispatch]
   );
 
-  console.log("", error);
+  if (error) {
+    return <ErrorPage errorMsg={error} />;
+  }
+
   return (
     <Paper>
       <Scheduler data={appointments} height={660} locale="pl-PL">

@@ -5,9 +5,9 @@ const LoadingPage = () => {
     <main
       style={{
         width: "100vw",
+        height: "100vh",
         display: "grid",
         placeItems: "center",
-        height: "100vh",
       }}
     >
       <CircularProgress />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { getDocs, collection } from "firebase/firestore";
-import firebaseConfig from "../hooks/firebaseConfig";
+import firebaseConfig from "../utils/firebaseConfig";
 
 export const useFetchAppointments = returnData => {
   const [loading, setLoading] = useState(false);
