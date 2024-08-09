@@ -23,7 +23,13 @@ import {
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { appointments } from "../demoData";
 import { db, firestore } from "../data/fireaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 
 const PREFIX = "Demo";
 
@@ -62,7 +68,6 @@ const getData = (setData, setLoading) => {
   return fetch(dataUrl)
     .then(response => response.json())
     .then(data => {
-      
       setTimeout(() => {
         setData(data.items);
         setLoading(false);
@@ -115,11 +120,11 @@ export default function Calendar() {
   const [data, setData] = useState(appointments);
 
   const [events, setEvents] = useState([]);
-  const summaryReference = collection(firestore, "appointments");
+  const appointmentsReference = collection(firestore, "appointments");
 
   useEffect(() => {
     const getEvents = async () => {
-      const data = await getDocs(summaryReference);
+      const data = await getDocs(appointmentsReference);
       setTimeout(() => {
         setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
         setLoading(false);
@@ -161,16 +166,29 @@ export default function Calendar() {
   //   getData(setEvents, setLoading);
   // }, [setEvents, currentViewName, currentDate]);
 
-    useEffect(() => {
-      const getEvents = async () => {
-        const data = await getDocs(summaryReference);
-        setTimeout(() => {
-          setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-          setLoading(false);
-        }, 600);
-      };
-      getEvents();
-    }, [setEvents, currentViewName, currentDate]);
+  useEffect(() => {
+    const getEvents = async () => {
+      const data = await getDocs(appointmentsReference);
+      setTimeout(() => {
+        setEvents(data.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+        setLoading(false);
+      }, 600);
+    };
+    getEvents();
+  }, [setEvents, currentViewName, currentDate]);
+
+  const POSTApponintemt = async newAppointment => {
+    await addDoc(appointmentsReference, newAppointment);
+  };
+
+  const PUTApponintemt = async (id, newDetails) => {
+    const eventsDoc = doc(db, "appointments", id);
+    await updateDoc(eventsDoc, newDetails);
+  };
+
+  const DELETEApponintemt = async id => {
+    await addDoc(appointmentsReference, newAppointment);
+  };
 
   const commitChanges = useCallback(
     ({ added, changed, deleted }) => {
@@ -182,15 +200,39 @@ export default function Calendar() {
             updatedData.length > 0
               ? updatedData[updatedData.length - 1].id + 1
               : 0;
-          updatedData = [...updatedData, { id: startingAddedId, ...added }];
+
+          const newAppointment = {
+            ...added,
+            startDate: added.startDate.toString(),
+            endDate: added.endDate.toString(),
+          };
+
+          updatedData = [
+            ...updatedData,
+            { id: startingAddedId, ...newAppointment },
+          ];
+
+          POSTApponintemt({
+            id: startingAddedId,
+            ...newAppointment,
+            location: "Room 1",
+          });
         }
 
         if (changed) {
-          updatedData = updatedData.map(appointment =>
-            changed[appointment.id]
-              ? { ...appointment, ...changed[appointment.id] }
-              : appointment
-          );
+          updatedData = updatedData.map(appointment => {
+            const changeId = appointment.id;
+            if (changed[changeId]) {
+              const updatedAppointment = {
+                ...appointment,
+                ...changed[changeId],
+              };
+              console.log("Edited Appointment ID:", changeId);
+              PUTApponintemt(changeId, updatedAppointment);
+              return updatedAppointment;
+            }
+            return appointment;
+          });
         }
 
         if (deleted !== undefined) {
