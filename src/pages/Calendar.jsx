@@ -21,10 +21,11 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import { useCallback, useEffect, useReducer, useState } from "react";
-
 import { useAppointmentActions } from "../hooks/useAppointmentsActions";
 import { useFetchAppointments } from "../services/fetchAppointments";
 import ErrorPage from "../components/ErrorPage";
+import firestoreOperations, { fetchData } from "../services/fetch";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const PREFIX = "Demo";
 
@@ -96,6 +97,24 @@ export default function Calendar() {
   useEffect(() => {
     fetchAppointments(setAppointments);
   }, [setAppointments, currentViewName, currentDate]);
+
+  // const {
+  //   isLoading,
+  //   error: errorQuerry,
+  //   data: tags,
+  // } = useQuery({
+  //   queryFn: () => firestoreOperations("GET", "appointments"),
+  //   queryKey: ["tags", setAppointments, currentViewName, currentDate],
+  //   staleTime: Infinity,
+  // });
+
+  // useEffect(() => {
+  //   setAppointments(tags);
+  // }, [setAppointments, tags, currentViewName, currentDate]);
+
+  // // useMutation({mutationFn: })
+
+  // console.log("eeeee", tags);
 
   const setCurrentViewName = useCallback(
     nextViewName =>

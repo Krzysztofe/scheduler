@@ -1,17 +1,17 @@
 import CircularProgress from "@mui/material/CircularProgress";
-
+import Grid from "@mui/material/Grid";
 const LoadingPage = () => {
   return (
-    <main
+    <Grid
       style={{
-        width: "100vw",
-        height: "100vh",
+        inset: "0",
         display: "grid",
         placeItems: "center",
+        position: "absolute",
       }}
     >
       <CircularProgress />
-    </main>
+    </Grid>
   );
 };
 

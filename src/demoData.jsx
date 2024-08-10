@@ -1,6 +1,3 @@
-console.log("", new Date(2018, 5, 25, 9, 35));
-console.log("", new Date(2018, 5, 25, 11, 30));
-
 export const appointments = [
   {
     title: "Website Re-Design Plan",

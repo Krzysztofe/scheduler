@@ -1,9 +1,10 @@
 import React from "react";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 
 const ErrorPage = props => {
   return (
-    <div
+    <Grid
       style={{
         inset: "0",
         display: "grid",
@@ -14,7 +15,7 @@ const ErrorPage = props => {
       <Typography color="error" variant="h6">
         {props.errorMsg}
       </Typography>
-    </div>
+    </Grid>
   );
 };
 
