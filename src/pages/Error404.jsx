@@ -4,13 +4,15 @@ import Typography from "@mui/material/Typography";
 const Error404 = () => {
   return (
     <Grid
-      container
-      justifyContent="center"
-      alignItems="center"
-      sx={{ height: "100vh", color: "error.main" }}
+      style={{
+        inset: "0",
+        display: "grid",
+        placeItems: "center",
+        position: "absolute",
+      }}
     >
-      <Typography color="error" variant="h6">
-        Błąd 404 <br /> Strona nie istnieje
+      <Typography color="error" variant="h6" align="center">
+        Błąd 404. <br /> Strona nie istnieje.
       </Typography>
     </Grid>
   );

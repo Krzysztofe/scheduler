@@ -1,22 +1,18 @@
 import {
-  getFirestore,
-  collection,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 import firebaseConfig from "../utils/firebaseConfig";
-import { useState } from "react";
 
-const usePerformFirestoreOperation = async (
-  // setError,
+const AppointmentsMutations = async (
   operation,
   collectionName,
   docId = null,
   data = null
 ) => {
-  // const [requestError, setRequestError] = useState(null);
   const { firestore, db } = firebaseConfig();
   const collectionRef = collection(firestore, collectionName);
 
@@ -37,19 +33,13 @@ const usePerformFirestoreOperation = async (
       case "DELETE":
         if (!docId) return;
         const deleteDocRef = doc(db, collectionName, docId);
-
         await deleteDoc(deleteDocRef);
-
-      default:
-        return {
-          errorMsg: "Invalid operation. Use 'POST', 'PUT', or 'DELETE'.",
-        };
+        break;
     }
   } catch (error) {
-    console.log("cc", error);
-    errorMsg = error;
+    errorMsg = "Błąd. Ponów prubę.";
   }
   return { errorMsg };
 };
 
-export default usePerformFirestoreOperation;
+export default AppointmentsMutations;

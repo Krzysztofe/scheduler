@@ -1,18 +1,22 @@
 import React, { Suspense, lazy } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
+import "./App.css";
+import { dataRoutes } from "./dataApp";
 
-const IndexCalendar = lazy(() => import("../pages/Calendar"));
-const queryClient = new QueryClient();
+const IndexCalendar = lazy(() => import("../pages/calendar/Calendar"));
 
 function App() {
   return (
-    <Suspense fallback={<LoadingPage />}>
-      <QueryClientProvider client={queryClient}>
-        <IndexCalendar />
-      </QueryClientProvider>
-    </Suspense>
+    <BrowserRouter>
+      <Suspense fallback={<LoadingPage />}>
+        <Routes>
+          {dataRoutes.map(({ path, element }) => {
+            return <Route key={path} path={path} element={element} />;
+          })}
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   );
 }
 

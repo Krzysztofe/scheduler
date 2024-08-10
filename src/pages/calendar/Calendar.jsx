@@ -21,11 +21,9 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import { useCallback, useEffect, useReducer, useState } from "react";
-import { useAppointmentActions } from "../hooks/useAppointmentsActions";
-import { useFetchAppointments } from "../services/fetchAppointments";
-import ErrorPage from "../components/ErrorPage";
-import firestoreOperations, { fetchData } from "../services/fetch";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import ErrorPage from "../../components/ErrorPage";
+import { useAppointmentActions } from "../../hooks/useAppointmentsActions";
+import { UseAppointmentsQuery } from "../../services/UseAppointmentsQuery";
 
 const PREFIX = "Demo";
 
@@ -75,8 +73,6 @@ const initialState = {
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "setData":
-      return { ...state, data: action.payload.map(mapAppointmentData) };
     case "setCurrentViewName":
       return { ...state, currentViewName: action.payload };
     case "setCurrentDate":
@@ -90,14 +86,17 @@ export default function Calendar() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { currentViewName, currentDate } = state;
   const [appointments, setAppointments] = useState([]);
-  const { commitChanges, isAddApointment } =
-    useAppointmentActions(setAppointments);
+  const {
+    commitChanges,
+    isAddedApointment,
+    error: errorActions,
+  } = useAppointmentActions(setAppointments);
   const { fetchAppointments, loading, error } =
-    useFetchAppointments(setAppointments);
+    UseAppointmentsQuery(setAppointments);
 
   useEffect(() => {
     fetchAppointments(setAppointments);
-  }, [isAddApointment, currentViewName, currentDate]);
+  }, [isAddedApointment, currentViewName, currentDate]);
 
   const setCurrentViewName = useCallback(
     nextViewName =>
@@ -119,6 +118,10 @@ export default function Calendar() {
 
   if (error) {
     return <ErrorPage errorMsg={error} />;
+  }
+
+  if (errorActions) {
+    return <ErrorPage errorMsg={errorActions} />;
   }
 
   return (

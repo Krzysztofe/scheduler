@@ -1,102 +1,97 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+  addAppointment,
+  changeAppointment,
+  deleteAppointment,
+} from "../pages/calendar/utils";
 
-import firebaseConfig from "../utils/firebaseConfig";
-import { useMutation } from "@tanstack/react-query";
-import firestoreOperations from "../services/fetch";
-
-import usePerformFirestoreOperation from "../services/newFetch";
+import AppointmentsMutations from "../services/AppointmentsMutations";
 
 export const useAppointmentActions = setAppointments => {
   const [error, setError] = useState(null);
-  const [isAddApointment, setIsAddApointment] = useState(true);
+  const [isAddedApointment, setIsAddedApointment] = useState(true);
 
-  const commitChanges = useCallback(
-    async ({ added, changed, deleted }) => {
+  const commitChanges = async ({ added, changed, deleted }) => {
+    let updatedData = await new Promise(resolve => {
       setAppointments(prevData => {
-        let updatedData = [...prevData];
+        let newData = [...prevData];
 
         if (added) {
-          const startingAddedId =
-            updatedData.length > 0
-              ? updatedData[updatedData.length - 1].id + 1
-              : 0;
-
-          const newAppointment = {
-            ...added,
-            startDate: added.startDate.toString(),
-            endDate: added.endDate.toString(),
-          };
-
-          usePerformFirestoreOperation("POST", "appointments", null, {
-            id: startingAddedId,
-            ...newAppointment,
-          });
-
-          setIsAddApointment(prev => !prev);
-
-          updatedData = [
-            ...updatedData,
-            { id: startingAddedId, ...newAppointment },
-          ];
+          newData = addAppointment(added, newData);
+          setIsAddedApointment(prev => !prev);
         }
 
         if (changed) {
-          updatedData = updatedData.map(appointment => {
-            const changeId = appointment.id;
-
-            console.log("chang", changeId);
-            if (changed[changeId]) {
-              const updatedAppointment = {
-                ...appointment,
-                ...changed[changeId],
-              };
-
-              usePerformFirestoreOperation(
-                "PUT",
-                "appointments",
-                changeId,
-                updatedAppointment
-              );
-
-              return updatedAppointment;
-            }
-            return appointment;
-          });
+          newData = changeAppointment(changed, newData);
         }
 
         if (deleted !== undefined) {
-          const deletedAppointment = updatedData.find(
-            appointment => appointment.id === deleted
-          );
-          updatedData = updatedData.filter(
-            appointment => appointment.id !== deleted
-          );
-
-          if (deletedAppointment) {
-            usePerformFirestoreOperation(
-              "DELETE",
-              "appointments",
-              deletedAppointment.id,
-              null
-            );
-          }
+          newData = deleteAppointment(deleted, newData);
         }
 
-        return updatedData;
+        resolve(newData);
+        return newData;
       });
-    },
-    [setAppointments]
-  );
+    });
+
+    if (added) {
+      const newApointment = updatedData[updatedData.length - 1];
+      const id = newApointment.id;
+
+      const { errorMsg } = await AppointmentsMutations(
+        "POST",
+        "appointments",
+        null,
+        {
+          id,
+          ...newApointment,
+        }
+      );
+
+      if (errorMsg) {
+        setError(errorMsg);
+      }
+    }
+
+    if (changed) {
+      for (const id in changed) {
+        if (changed.hasOwnProperty(id)) {
+          const updatedAppointment = updatedData.find(
+            appointment => appointment.id === id
+          );
+
+          if (updatedAppointment) {
+            const { errorMsg } = await AppointmentsMutations(
+              "PUT",
+              "appointments",
+              id,
+              updatedAppointment
+            );
+
+            if (errorMsg) {
+              setError(errorMsg);
+            }
+          }
+        }
+      }
+    }
+
+    if (deleted !== undefined) {
+      const { errorMsg } = await AppointmentsMutations(
+        "DELETE",
+        "appointments",
+        deleted,
+        null
+      );
+      if (errorMsg) {
+        setError(errorMsg);
+      }
+    }
+  };
 
   return {
     commitChanges,
-    isAddApointment,
+    isAddedApointment,
+    error,
   };
 };
