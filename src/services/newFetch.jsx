@@ -7,52 +7,49 @@ import {
   doc,
 } from "firebase/firestore";
 import firebaseConfig from "../utils/firebaseConfig";
+import { useState } from "react";
 
-const performFirestoreOperation = async (
+const usePerformFirestoreOperation = async (
+  // setError,
   operation,
   collectionName,
   docId = null,
   data = null
 ) => {
-  const { firestore } = firebaseConfig();
+  // const [requestError, setRequestError] = useState(null);
+  const { firestore, db } = firebaseConfig();
   const collectionRef = collection(firestore, collectionName);
+
+  let errorMsg = null;
 
   try {
     switch (operation) {
       case "POST":
-        if (!data) throw new Error("Data is required for POST operation.");
-         await addDoc(collectionRef, data);
-        // return { success: true, id: postDocRef.id };
-
+        if (!data) return;
+        await addDoc(collectionRef, data);
+        break;
       case "PUT":
-        if (!docId || !data)
-          throw new Error(
-            "Document ID and data are required for PUT operation."
-          );
-        const putDocRef = doc(firestore, collectionName, docId);
+        if (!docId || !data) return;
+        const putDocRef = doc(db, collectionName, docId);
         await updateDoc(putDocRef, data);
-        return {
-          success: true,
-          message: `Document with ID ${docId} updated successfully.`,
-        };
+        break;
 
       case "DELETE":
-        if (!docId)
-          throw new Error("Document ID is required for DELETE operation.");
-        const deleteDocRef = doc(firestore, collectionName, docId);
+        if (!docId) return;
+        const deleteDocRef = doc(db, collectionName, docId);
+
         await deleteDoc(deleteDocRef);
-        return {
-          success: true,
-          message: `Document with ID ${docId} deleted successfully.`,
-        };
 
       default:
-        throw new Error("Invalid operation. Use 'POST', 'PUT', or 'DELETE'.");
+        return {
+          errorMsg: "Invalid operation. Use 'POST', 'PUT', or 'DELETE'.",
+        };
     }
   } catch (error) {
-    console.error("Error performing Firestore operation:", error);
-    return { success: false, error: error.message };
+    console.log("cc", error);
+    errorMsg = error;
   }
+  return { errorMsg };
 };
 
-export default performFirestoreOperation;
+export default usePerformFirestoreOperation;

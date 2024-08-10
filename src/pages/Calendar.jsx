@@ -90,31 +90,14 @@ export default function Calendar() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { currentViewName, currentDate } = state;
   const [appointments, setAppointments] = useState([]);
-  const { commitChanges } = useAppointmentActions(setAppointments);
+  const { commitChanges, isAddApointment } =
+    useAppointmentActions(setAppointments);
   const { fetchAppointments, loading, error } =
     useFetchAppointments(setAppointments);
 
   useEffect(() => {
     fetchAppointments(setAppointments);
-  }, [setAppointments, currentViewName, currentDate]);
-
-  // const {
-  //   isLoading,
-  //   error: errorQuerry,
-  //   data: tags,
-  // } = useQuery({
-  //   queryFn: () => firestoreOperations("GET", "appointments"),
-  //   queryKey: ["tags", setAppointments, currentViewName, currentDate],
-  //   staleTime: Infinity,
-  // });
-
-  // useEffect(() => {
-  //   setAppointments(tags);
-  // }, [setAppointments, tags, currentViewName, currentDate]);
-
-  // // useMutation({mutationFn: })
-
-  // console.log("eeeee", tags);
+  }, [isAddApointment, currentViewName, currentDate]);
 
   const setCurrentViewName = useCallback(
     nextViewName =>
