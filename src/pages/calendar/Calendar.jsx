@@ -17,46 +17,15 @@ import {
   ViewSwitcher,
   WeekView,
 } from "@devexpress/dx-react-scheduler-material-ui";
-import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
-import { styled } from "@mui/material/styles";
 import { useCallback, useEffect, useReducer, useState } from "react";
 import ErrorPage from "../../components/ErrorPage";
+import LoadingPage from "../../components/LoadingPage";
 import { useAppointmentActions } from "../../hooks/useApointmentsActions/useAppointmentsActions";
 import { useAppointmentsQuery } from "../../services/UseAppointmentsQuery";
 import "./Calendar.css";
 import { initialState } from "./dataInitialState";
-import LoadingPage from "../../components/LoadingPage";
-// import LoadingCalendar from "./LoadingCalendar";
-
-const PREFIX = "Demo";
-
-const classes = {
-  toolbarRoot: `${PREFIX}-toolbarRoot`,
-  progress: `${PREFIX}-progress`,
-};
-
-const StyledDiv = styled("div")({
-  [`&.${classes.toolbarRoot}`]: {
-    position: "relative",
-  },
-});
-
-const StyledLinearProgress = styled(LinearProgress)(() => ({
-  [`&.${classes.progress}`]: {
-    position: "absolute",
-    width: "100%",
-    bottom: 0,
-    left: 0,
-  },
-}));
-
-const ToolbarWithLoading = ({ children, ...restProps }) => (
-  <StyledDiv className={classes.toolbarRoot}>
-    <Toolbar.Root {...restProps}>{children}</Toolbar.Root>
-    <StyledLinearProgress className={classes.progress} />
-  </StyledDiv>
-);
+import ToolbarWithLoading from "./ToolbarWithLoading";
 
 const reducer = (state, action) => {
   switch (action.type) {

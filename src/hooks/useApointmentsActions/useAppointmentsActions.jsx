@@ -8,7 +8,7 @@ import {
   updatedAppointment,
 } from "./servicesAppointemtsActions";
 
-appointmentWithISODate;
+
 
 export const useAppointmentActions = (setAppointments, apointments) => {
   const [actionLoading, setActionLoading] = useState(false);
