@@ -26,7 +26,8 @@ import { useAppointmentActions } from "../../hooks/useApointmentsActions/useAppo
 import { useAppointmentsQuery } from "../../services/UseAppointmentsQuery";
 import "./Calendar.css";
 import { initialState } from "./dataInitialState";
-import moment from "moment";
+import LoadingPage from "../../components/LoadingPage";
+// import LoadingCalendar from "./LoadingCalendar";
 
 const PREFIX = "Demo";
 
@@ -49,22 +50,6 @@ const StyledLinearProgress = styled(LinearProgress)(() => ({
     left: 0,
   },
 }));
-
-// Function to convert date to ISO 8601 format
-// const polishTime = date => {
-//   return new Date(date).toISOString();
-// };
-
-const mapAppointmentData = appointment => ({
-  id: appointment.id,
-  startDate: polishTime(appointment.start.dateTime),
-  endDate: polishTime(appointment.end.dateTime),
-  title: appointment.summary,
-});
-
-const convertToISO = dateStr => {
-  return moment(dateStr).toISOString();
-};
 
 const ToolbarWithLoading = ({ children, ...restProps }) => (
   <StyledDiv className={classes.toolbarRoot}>
@@ -93,10 +78,12 @@ export default function Calendar() {
     loading,
     error: errorQuery,
   } = useAppointmentsQuery(setAppointments);
+
   const {
     commitChanges,
     isAddedApointment,
     error: errorActions,
+    actionLoading,
   } = useAppointmentActions(setAppointments, appointments);
 
   useEffect(() => {
@@ -128,6 +115,7 @@ export default function Calendar() {
   } else {
     return (
       <Paper>
+        {actionLoading && <LoadingPage />}
         <Scheduler data={appointments} height={660} locale="pl-PL">
           <ViewState
             currentDate={currentDate}

@@ -1,28 +1,31 @@
 import { useState } from "react";
-import {
-  addAppointment,
-  changeAppointment,
-  deleteAppointment,
-} from "../../pages/calendar/utils";
 import AppointmentsMutations from "../../services/AppointmentsMutations";
 import {
+  addAppointment,
   appointmentWithISODate,
+  changeAppointment,
+  deleteAppointment,
   updatedAppointment,
 } from "./servicesAppointemtsActions";
 
+appointmentWithISODate;
+
 export const useAppointmentActions = (setAppointments, apointments) => {
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isAddedApointment, setIsAddedApointment] = useState(true);
 
   const commitChanges = async ({ added, changed, deleted }) => {
     if (added) {
+      setActionLoading(true);
       const { errorMsg } = await AppointmentsMutations(
         "POST",
         "appointments",
         null,
         appointmentWithISODate(added)
       );
-
+      setIsAddedApointment(prev => !prev);
+      setActionLoading(false);
       if (errorMsg) {
         setError(errorMsg);
       }
@@ -30,28 +33,29 @@ export const useAppointmentActions = (setAppointments, apointments) => {
 
     if (changed) {
       const id = Object.keys(changed)[0];
+      setActionLoading(true);
 
-      if (updatedAppointment) {
-        const { errorMsg } = await AppointmentsMutations(
-          "PUT",
-          "appointments",
-          id,
-          updatedAppointment(changed, apointments)
-        );
-
-        if (errorMsg) {
-          setError(errorMsg);
-        }
+      const { errorMsg } = await AppointmentsMutations(
+        "PUT",
+        "appointments",
+        id,
+        updatedAppointment(changed, apointments)
+      );
+      setActionLoading(false);
+      if (errorMsg) {
+        setError(errorMsg);
       }
     }
 
     if (deleted !== undefined) {
+      setActionLoading(true);
       const { errorMsg } = await AppointmentsMutations(
         "DELETE",
         "appointments",
         deleted,
         null
       );
+      setActionLoading(false);
       if (errorMsg) {
         setError(errorMsg);
       }
@@ -62,7 +66,6 @@ export const useAppointmentActions = (setAppointments, apointments) => {
 
       if (added) {
         newData = addAppointment(added, newData);
-        setIsAddedApointment(prev => !prev);
       }
 
       if (changed) {
@@ -80,6 +83,7 @@ export const useAppointmentActions = (setAppointments, apointments) => {
   return {
     commitChanges,
     isAddedApointment,
+    actionLoading,
     error,
   };
 };

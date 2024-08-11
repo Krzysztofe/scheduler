@@ -8,6 +8,8 @@ const LoadingPage = () => {
         display: "grid",
         placeItems: "center",
         position: "absolute",
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        zIndex: "100",
       }}
     >
       <CircularProgress />
