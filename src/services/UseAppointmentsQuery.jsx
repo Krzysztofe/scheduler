@@ -2,7 +2,7 @@ import { useState } from "react";
 import { getDocs, collection } from "firebase/firestore";
 import firebaseConfig from "../utils/firebaseConfig";
 
-export const UseAppointmentsQuery = returnData => {
+export const useAppointmentsQuery = returnData => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { firestore } = firebaseConfig();

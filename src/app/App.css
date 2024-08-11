@@ -1,9 +1,10 @@
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
 
+@import "../pages/calendar/Calendar.css"
 
-/* .css-dpjnhs-MuiInputBase-root-MuiOutlinedInput-root {
-  display: none !important;
-} */
-
-/* .css-1tazxmh .Layout-labelWithMargins {
-  display: none !important;
-} */

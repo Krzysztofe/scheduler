@@ -1,10 +1,9 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
 import "./App.css";
 import { dataRoutes } from "./dataApp";
 
-const IndexCalendar = lazy(() => import("../pages/calendar/Calendar"));
 
 function App() {
   return (

@@ -22,8 +22,11 @@ import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import { useCallback, useEffect, useReducer, useState } from "react";
 import ErrorPage from "../../components/ErrorPage";
-import { useAppointmentActions } from "../../hooks/useAppointmentsActions";
-import { UseAppointmentsQuery } from "../../services/UseAppointmentsQuery";
+import { useAppointmentActions } from "../../hooks/useApointmentsActions/useAppointmentsActions";
+import { useAppointmentsQuery } from "../../services/UseAppointmentsQuery";
+import "./Calendar.css";
+import { initialState } from "./dataInitialState";
+import moment from "moment";
 
 const PREFIX = "Demo";
 
@@ -47,15 +50,10 @@ const StyledLinearProgress = styled(LinearProgress)(() => ({
   },
 }));
 
-const ToolbarWithLoading = ({ children, ...restProps }) => (
-  <StyledDiv className={classes.toolbarRoot}>
-    <Toolbar.Root {...restProps}>{children}</Toolbar.Root>
-    <StyledLinearProgress className={classes.progress} />
-  </StyledDiv>
-);
-
-const polishTime = date =>
-  new Date(date).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw" });
+// Function to convert date to ISO 8601 format
+// const polishTime = date => {
+//   return new Date(date).toISOString();
+// };
 
 const mapAppointmentData = appointment => ({
   id: appointment.id,
@@ -64,12 +62,16 @@ const mapAppointmentData = appointment => ({
   title: appointment.summary,
 });
 
-const initialState = {
-  data: [],
-  loading: false,
-  currentDate: "2024-08-01",
-  currentViewName: "month",
+const convertToISO = dateStr => {
+  return moment(dateStr).toISOString();
 };
+
+const ToolbarWithLoading = ({ children, ...restProps }) => (
+  <StyledDiv className={classes.toolbarRoot}>
+    <Toolbar.Root {...restProps}>{children}</Toolbar.Root>
+    <StyledLinearProgress className={classes.progress} />
+  </StyledDiv>
+);
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -87,12 +89,15 @@ export default function Calendar() {
   const { currentViewName, currentDate } = state;
   const [appointments, setAppointments] = useState([]);
   const {
+    fetchAppointments,
+    loading,
+    error: errorQuery,
+  } = useAppointmentsQuery(setAppointments);
+  const {
     commitChanges,
     isAddedApointment,
     error: errorActions,
-  } = useAppointmentActions(setAppointments);
-  const { fetchAppointments, loading, error } =
-    UseAppointmentsQuery(setAppointments);
+  } = useAppointmentActions(setAppointments, appointments);
 
   useEffect(() => {
     fetchAppointments(setAppointments);
@@ -116,57 +121,59 @@ export default function Calendar() {
     [dispatch]
   );
 
-  if (error) {
-    return <ErrorPage errorMsg={error} />;
-  }
-
-  if (errorActions) {
+  if (errorQuery) {
+    return <ErrorPage errorMsg={errorQuery} />;
+  } else if (errorActions) {
     return <ErrorPage errorMsg={errorActions} />;
+  } else {
+    return (
+      <Paper>
+        <Scheduler data={appointments} height={660} locale="pl-PL">
+          <ViewState
+            currentDate={currentDate}
+            currentViewName={currentViewName}
+            onCurrentViewNameChange={setCurrentViewName}
+            onCurrentDateChange={setCurrentDate}
+          />
+          <EditingState onCommitChanges={commitChanges} />
+          <IntegratedEditing />
+          <DayView startDayHour={7.5} endDayHour={17.5} displayName="Dzień" />
+          <WeekView
+            startDayHour={7.5}
+            endDayHour={17.5}
+            displayName="Tydzień"
+          />
+          <MonthView name="month" displayName="Miesiąc" />
+          <ConfirmationDialog
+            messages={{
+              confirmDeleteMessage: "Czy na pewno chcesz usunąć to wydarzenie?",
+              confirmCancelMessage: "Zmknąć okno?",
+              cancelButton: "Anuluj",
+              deleteButton: "Usuń",
+              discardButton: "Zamknij",
+            }}
+          />
+          <Appointments />
+          <Toolbar
+            {...(loading ? { rootComponent: ToolbarWithLoading } : null)}
+          />
+          <DateNavigator />
+          <TodayButton messages={{ today: "Dzisiaj" }} />
+          <ViewSwitcher />
+          <AppointmentTooltip showOpenButton showCloseButton />
+
+          <AppointmentForm
+            booleanEditorComponent={() => null}
+            messages={{
+              detailsLabel: "Szczegóły",
+              titleLabel: "Tytuł",
+              startDateLabel: "Data rozpoczęcia",
+              endDateLabel: "Data zakończenia",
+              commitCommand: "Zapisz",
+            }}
+          />
+        </Scheduler>
+      </Paper>
+    );
   }
-
-  return (
-    <Paper>
-      <Scheduler data={appointments} height={660} locale="pl-PL">
-        <ViewState
-          currentDate={currentDate}
-          currentViewName={currentViewName}
-          onCurrentViewNameChange={setCurrentViewName}
-          onCurrentDateChange={setCurrentDate}
-        />
-        <EditingState onCommitChanges={commitChanges} />
-        <IntegratedEditing />
-        <DayView startDayHour={7.5} endDayHour={17.5} displayName="Dzień" />
-        <WeekView startDayHour={7.5} endDayHour={17.5} displayName="Tydzień" />
-        <MonthView name="month" displayName="Miesiąc" />
-        <ConfirmationDialog
-          messages={{
-            confirmDeleteMessage: "Czy na pewno chcesz usunąć to wydarzenie?",
-            confirmCancelMessage: "Zmknąć okno?",
-            cancelButton: "Anuluj",
-            deleteButton: "Usuń",
-            discardButton: "Zamknij",
-          }}
-        />
-        <Appointments />
-        <Toolbar
-          {...(loading ? { rootComponent: ToolbarWithLoading } : null)}
-        />
-        <DateNavigator />
-        <TodayButton messages={{ today: "Dzisiaj" }} />
-        <ViewSwitcher />
-        <AppointmentTooltip showOpenButton showCloseButton />
-
-        <AppointmentForm
-          booleanEditorComponent={() => null}
-          messages={{
-            detailsLabel: "Szczegóły",
-            titleLabel: "Tytuł",
-            startDateLabel: "Data rozpoczęcia",
-            endDateLabel: "Data zakończenia",
-            commitCommand: "Zapisz",
-          }}
-        />
-      </Scheduler>
-    </Paper>
-  );
 }
