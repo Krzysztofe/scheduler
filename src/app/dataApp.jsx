@@ -1,8 +1,8 @@
 import { lazy } from "react";
-const Calendar = lazy(() => import("../pages/calendar/Calendar"));
+const IndexCalendar = lazy(() => import("../pages/calendar/IndexCalendar"));
 const Error404 = lazy(() => import("../pages/Error404"));
 
 export const dataRoutes = [
-  { path: "/", element: <Calendar /> },
+  { path: "/", element: <IndexCalendar /> },
   { path: "*", element: <Error404 /> },
 ];

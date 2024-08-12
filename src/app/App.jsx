@@ -1,11 +1,10 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoadingPage from "../components/LoadingPage";
 import "./App.css";
 import { dataRoutes } from "./dataApp";
 
-
-function App() {
+const App = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<LoadingPage />}>
@@ -17,6 +16,6 @@ function App() {
       </Suspense>
     </BrowserRouter>
   );
-}
+};
 
 export default App;

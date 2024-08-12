@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AppointmentsMutations from "../../services/AppointmentsMutations";
+import useAppointmentsMutations from "../../services/useAppointmentsMutations";
 import {
   addAppointment,
   appointmentWithISODate,
@@ -8,24 +8,21 @@ import {
   updatedAppointment,
 } from "./servicesAppointemtsActions";
 
-
-
 export const useAppointmentActions = (setAppointments, apointments) => {
-  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isAddedApointment, setIsAddedApointment] = useState(true);
+  const { performMutation } = useAppointmentsMutations();
 
   const commitChanges = async ({ added, changed, deleted }) => {
     if (added) {
-      setActionLoading(true);
-      const { errorMsg } = await AppointmentsMutations(
+      const { errorMsg } = await performMutation(
         "POST",
         "appointments",
         null,
         appointmentWithISODate(added)
       );
       setIsAddedApointment(prev => !prev);
-      setActionLoading(false);
+
       if (errorMsg) {
         setError(errorMsg);
       }
@@ -33,29 +30,27 @@ export const useAppointmentActions = (setAppointments, apointments) => {
 
     if (changed) {
       const id = Object.keys(changed)[0];
-      setActionLoading(true);
 
-      const { errorMsg } = await AppointmentsMutations(
+      const { errorMsg } = await performMutation(
         "PUT",
         "appointments",
         id,
         updatedAppointment(changed, apointments)
       );
-      setActionLoading(false);
+
       if (errorMsg) {
         setError(errorMsg);
       }
     }
 
     if (deleted !== undefined) {
-      setActionLoading(true);
-      const { errorMsg } = await AppointmentsMutations(
+      const { errorMsg } = await performMutation(
         "DELETE",
         "appointments",
         deleted,
         null
       );
-      setActionLoading(false);
+
       if (errorMsg) {
         setError(errorMsg);
       }
@@ -83,7 +78,6 @@ export const useAppointmentActions = (setAppointments, apointments) => {
   return {
     commitChanges,
     isAddedApointment,
-    actionLoading,
     error,
   };
 };

@@ -18,14 +18,21 @@ import {
   WeekView,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import Paper from "@mui/material/Paper";
-import { useCallback, useEffect, useReducer, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import ErrorPage from "../../components/ErrorPage";
 import LoadingPage from "../../components/LoadingPage";
 import { useAppointmentActions } from "../../hooks/useApointmentsActions/useAppointmentsActions";
-import { useAppointmentsQuery } from "../../services/UseAppointmentsQuery";
+import { useAppointmentsQuery } from "../../services/useAppointmentsQuery";
 import "./Calendar.css";
 import { initialState } from "./dataInitialState";
 import ToolbarWithLoading from "./ToolbarWithLoading";
+import { ContextLoading } from "./ContextLoadingProv";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -38,10 +45,12 @@ const reducer = (state, action) => {
   }
 };
 
-export default function Calendar() {
+const Calendar = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { currentViewName, currentDate } = state;
   const [appointments, setAppointments] = useState([]);
+  const { isLoadingAction } = useContext(ContextLoading);
+
   const {
     fetchAppointments,
     loading,
@@ -52,7 +61,6 @@ export default function Calendar() {
     commitChanges,
     isAddedApointment,
     error: errorActions,
-    actionLoading,
   } = useAppointmentActions(setAppointments, appointments);
 
   useEffect(() => {
@@ -84,7 +92,7 @@ export default function Calendar() {
   } else {
     return (
       <Paper>
-        {actionLoading && <LoadingPage />}
+        {isLoadingAction && <LoadingPage />}
         <Scheduler data={appointments} height={660} locale="pl-PL">
           <ViewState
             currentDate={currentDate}
@@ -133,4 +141,6 @@ export default function Calendar() {
       </Paper>
     );
   }
-}
+};
+
+export default Calendar;
