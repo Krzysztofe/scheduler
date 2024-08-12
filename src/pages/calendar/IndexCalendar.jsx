@@ -1,10 +1,10 @@
-import Calendar from "./Calendar";
-import ContextLoadingProv from "./ContextLoadingProv";
+import CalendarPanel from "./calendarPanel/CalendarPanel";
+import ContextLoadingProv from "./calendarPanel/ContextLoadingProv";
 
 const IndexCalendar = () => {
   return (
     <ContextLoadingProv>
-      <Calendar />
+      <CalendarPanel />
     </ContextLoadingProv>
   );
 };

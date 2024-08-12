@@ -6,7 +6,7 @@ import {
   changeAppointment,
   deleteAppointment,
   updatedAppointment,
-} from "./servicesAppointemtsActions";
+} from "./utilsAppointemtsActions";
 
 export const useAppointmentActions = (setAppointments, apointments) => {
   const [error, setError] = useState(null);
@@ -30,7 +30,6 @@ export const useAppointmentActions = (setAppointments, apointments) => {
 
     if (changed) {
       const id = Object.keys(changed)[0];
-
       const { errorMsg } = await performMutation(
         "PUT",
         "appointments",
