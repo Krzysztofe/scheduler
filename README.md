@@ -1,5 +1,5 @@
 # React + Vite
-https://66b7cc231c5cc2916c094d69--stalwart-ganache-294801.netlify.app/
+https://66bb6a5f09c3813d42a6a8bb--thriving-taffy-02c37d.netlify.app/
 
 Firebase configuration keys are directly included in the code rather than being stored in environment variables, which can be useful for local testing. 
 
