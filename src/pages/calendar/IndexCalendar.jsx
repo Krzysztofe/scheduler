@@ -1,11 +1,11 @@
 import CalendarPanel from "./calendarPanel/CalendarPanel";
-import ContextLoadingProv from "./calendarPanel/ContextLoadingProv";
+import ContextCalendarProv from "./calendarPanel/ContextCalendarProv";
 
 const IndexCalendar = () => {
   return (
-    <ContextLoadingProv>
+    <ContextCalendarProv>
       <CalendarPanel />
-    </ContextLoadingProv>
+    </ContextCalendarProv>
   );
 };
 

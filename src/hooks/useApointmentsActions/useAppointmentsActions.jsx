@@ -9,50 +9,33 @@ import {
 } from "./utilsAppointemtsActions";
 
 export const useAppointmentActions = (setAppointments, apointments) => {
-  const [error, setError] = useState(null);
   const [isAddedApointment, setIsAddedApointment] = useState(true);
   const { performMutation } = useAppointmentsMutations();
 
   const commitChanges = async ({ added, changed, deleted }) => {
     if (added) {
-      const { errorMsg } = await performMutation(
+      console.log("", added);
+      await performMutation(
         "POST",
         "appointments",
         null,
         appointmentWithISODate(added)
       );
       setIsAddedApointment(prev => !prev);
-
-      if (errorMsg) {
-        setError(errorMsg);
-      }
     }
 
     if (changed) {
       const id = Object.keys(changed)[0];
-      const { errorMsg } = await performMutation(
+      await performMutation(
         "PUT",
         "appointments",
         id,
         updatedAppointment(changed, apointments)
       );
-
-      if (errorMsg) {
-        setError(errorMsg);
-      }
     }
 
     if (deleted !== undefined) {
-      const { errorMsg } = await performMutation(
-        "DELETE",
-        "appointments",
-        deleted,
-        null
-      );
-
-      if (errorMsg) {
-        setError(errorMsg);
-      }
+      await performMutation("DELETE", "appointments", deleted, null);
     }
 
     setAppointments(prevData => {
@@ -77,6 +60,5 @@ export const useAppointmentActions = (setAppointments, apointments) => {
   return {
     commitChanges,
     isAddedApointment,
-    error,
   };
 };

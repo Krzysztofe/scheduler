@@ -32,7 +32,7 @@ import ErrorPage from "../../../components/ErrorPage";
 import LoadingPage from "../../../components/LoadingPage";
 import { useAppointmentActions } from "../../../hooks/useApointmentsActions/useAppointmentsActions";
 import { useAppointmentsQuery } from "../../../services/useAppointmentsQuery";
-import { ContextLoading } from "./ContextLoadingProv";
+import { ContextCalendar } from "./ContextCalendarProv";
 import ToolbarWithLoading from "./ToolbarWithLoading";
 import "./CalendarPanel.css";
 import { initialState } from "./dataInitialState";
@@ -52,7 +52,7 @@ const CalendarPanel = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { currentViewName, currentDate } = state;
   const [appointments, setAppointments] = useState([]);
-  const { isLoadingAction } = useContext(ContextLoading);
+  const { isLoadingAction, errorAction } = useContext(ContextCalendar);
 
   const {
     fetchAppointments,
@@ -60,11 +60,10 @@ const CalendarPanel = () => {
     error: errorQuery,
   } = useAppointmentsQuery(setAppointments);
 
-  const {
-    commitChanges,
-    isAddedApointment,
-    error: errorActions,
-  } = useAppointmentActions(setAppointments, appointments);
+  const { commitChanges, isAddedApointment } = useAppointmentActions(
+    setAppointments,
+    appointments
+  );
 
   useEffect(() => {
     fetchAppointments(setAppointments);
@@ -90,8 +89,8 @@ const CalendarPanel = () => {
 
   if (errorQuery) {
     return <ErrorPage errorMsg={errorQuery} />;
-  } else if (errorActions) {
-    return <ErrorPage errorMsg={errorActions} />;
+  } else if (errorAction) {
+    return <ErrorPage errorMsg={errorAction} />;
   } else {
     return (
       <Paper>
