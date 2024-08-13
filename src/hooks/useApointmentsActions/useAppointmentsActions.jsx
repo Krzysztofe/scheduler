@@ -14,7 +14,6 @@ export const useAppointmentActions = (setAppointments, apointments) => {
 
   const commitChanges = async ({ added, changed, deleted }) => {
     if (added) {
-      console.log("", added);
       await performMutation(
         "POST",
         "appointments",
